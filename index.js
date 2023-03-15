@@ -132,3 +132,94 @@ console.log('bb');
 
 // set timeout закидывает функцию в WebApis там оно ждёт указанное время и возвращается в колстак.
 
+// =========================Promise. Что это, как работает=======================//
+//===========================================LESSON-5=================================================//
+
+console.log('Request data..');
+
+// setTimeout(() => {
+//     console.log('Preparing data .. ');
+//     const backendData = {
+//         server: 'aws',
+//         port: 2000,
+//         data: 'working'
+//     };
+//     setTimeout(() => {
+//         backendData.info = true;
+//         console.log('Data recived', backendData);
+//     },3000)
+// }, 2000);
+
+const p = new Promise(function (resolve, reject) {
+    setTimeout(() => {
+        console.log('Preparing data ...');
+        const backendData = {
+            server: 'aws',
+            port: 2000,
+            data: 'working'
+        };
+        resolve(backendData)
+    }, 2000)
+});
+p.then(data => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            data.info = true;
+            resolve(data)
+        }, 3000)
+    });
+}) 
+.then(clientData => { 
+    console.log('Data recived', clientData);
+    return clientData;
+}).then(data => {
+    data.promisInfo = 'NEO';
+    console.log ('Modified', data)
+}) // таким образом, посредством .then можно формировать цепочку(чейн).
+.catch( err => console.error('Error: ',err))     // усли вместо resolve - reject, то методом .catch мы ловим и выводим ошибку.
+.finally(() => console.log('finally'))
+
+const sleep = ms => {
+    return new Promise(resolve => {
+        setTimeout(()=> resolve(),ms)
+    })
+};
+// sleep(20000).then(()=> console.log('After 2 sec'));
+
+Promise.all([sleep(10000), sleep(15000)]).then(()=> {
+    console.log('All finally')
+}); //метод All выполняет условия только когда все промисы закончатся.
+
+Promise.race([sleep(10000), sleep(15000)]).then(()=> {
+    console.log('Race promises')
+}) // отработает самый первый.
+
+// =========================Объекты с Object.create. Что такое getters, setters=======================//
+//===========================================LESSON-6=================================================//
+const pers = Object.create({},{
+    name: {
+        value: 'Anton',
+        enumerable: true,
+        writable: true,
+        configurable : true
+    },
+    birthYear:{
+        value:1998,
+        enumerable: true,
+        writable: true,
+        configurable: false
+    },
+    age: {
+        get() {
+            return new Date().getFullYear() - this.birthYear
+        },
+        set(value){
+            document.body.style.background = 'red';
+            console.log('Set age', value)
+        }
+    }
+});
+
+for (let keyq in pers) {
+    console.log( 'Key' ,keyq, pers[keyq])
+}
