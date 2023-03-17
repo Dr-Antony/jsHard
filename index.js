@@ -390,9 +390,9 @@ const fp = new Proxy(log, {
 });
 //Classes
 class Persic {
-    constructor(name,age) {
+    constructor(name, age) {
         this.name = name
-        this.age = age 
+        this.age = age
     }
 };
 const PersonProxy = new Proxy(Persic, {
@@ -403,3 +403,99 @@ const PersonProxy = new Proxy(Persic, {
 });
 
 const p = new PersonProxy('Anton', 24);
+// =======================================Proxy. Примеры. Часть 2======================================//
+//===========================================LESSON-10=================================================//
+
+//wrapper
+
+const withDefaultValue = (target, defaultValue = 0) => {
+    return new Proxy(target, {
+        get: (obj, prop) => (prop in obj ? obj[prop] : defaultValue)
+    })
+};
+const position = withDefaultValue({
+    x: 24,
+    y: 14
+}, 0);
+console.log(position);
+//hiden properies
+const withHiddenProps = (target, prefix = '_') => {
+    return new Proxy(target, {
+        has: (obj, prop) => prop in obj && !prop.startsWith(prefix),
+        ownKeys: obj => Reflect.ownKeys(obj).filter(p => !p.startsWith(prefix)),
+        get: (obj, prop, receiver) => (prop in receiver ? obj[prop] : void 0)
+    })
+};
+const data = withHiddenProps({
+    name: 'Anton',
+    age: 25,
+    _uid: '123456'
+});
+//Optimization 
+
+
+const IndexArray = new Proxy(Array, {
+    construct(target, [args]) {
+        const index = {};
+        args.forEach(item => (index[item.id] = item))
+        return new Proxy(new target(...args), {
+            get(arr, prop) {
+                switch (prop) {
+                    case 'push': return item => {
+                        index[item.id] = item
+                        arr[prop].call(arr, item)
+                    }
+                    case 'findById':
+                        return id => index[id]
+                    default: return arr[prop]
+                }
+            }
+        })
+    }});
+
+const users = new IndexArray(
+    [
+        { id: 1, name: 'Anton', job: 'Fullstack', age: 24 },
+        { id: 2, name: 'Bozhena', job: 'Cosmetologist', age: 24 },
+        { id: 3, name: 'Alexandr', job: 'Backend', age: 25 },
+        { id: 4, name: 'Sergey', job: 'Taxist', age: 27 }
+    ]
+)
+
+
+
+// =======================================Генераторы. Symbol iterator, for of======================================//
+//======================================================LESSON-11=================================================//
+// function* strGenerator(){
+//     yield 'H'
+//     yield 'I'
+//     yield 'B'
+//     yield 'D'
+//     yield 'A'
+// };
+
+// const st = strGenerator();
+
+// const iterator = {
+//     [Symbol.iterator](n = 10){
+//         let i = 0;
+//         return {
+//             next(){
+//                 if (i < n) {
+//                     return { value: ++i, done: false}
+//                 }
+//                 return {value: undefined , done: true}
+//             }
+//         }
+//     }
+// };
+// const it = iterator.gen();
+function* iter(n = 10){
+    for(i = 0; i < n; i++){
+        yield i
+    }
+}
+
+for(let k of iter(6)){
+    console.log(k)
+}
