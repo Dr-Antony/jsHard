@@ -451,7 +451,8 @@ const IndexArray = new Proxy(Array, {
                 }
             }
         })
-    }});
+    }
+});
 
 const users = new IndexArray(
     [
@@ -490,12 +491,53 @@ const users = new IndexArray(
 //     }
 // };
 // const it = iterator.gen();
-function* iter(n = 10){
-    for(i = 0; i < n; i++){
+function* iter(n = 10) {
+    for (i = 0; i < n; i++) {
         yield i
     }
 }
 
-for(let k of iter(6)){
+for (let k of iter(6)) {
     console.log(k)
 }
+
+// ===============================================Все о Spread и Rest============================================//
+//======================================================LESSON-12=================================================//
+
+const citiesRussia = ['Москва', 'Казань', 'Краснодар'];
+const citiesEurop = ['Париж', 'Берлин', 'Прага'];
+
+const concat = [...citiesEurop, ...citiesRussia];
+
+console.log(concat);
+
+const cities = {
+    moscow: 1,
+    saintpeterburg: 2,
+    kazan: 4
+};
+const cities2 = {
+    praha: 1,
+    paris: 2,
+    london: 4
+}
+
+console.log({...cities,...cities2});
+
+const divs = document.querySelectorAll('div');
+
+console.log(divs, Array.isArray(divs))
+
+const nodes = [...divs];
+
+console.log(nodes, Array.isArray(nodes));
+
+//========//
+
+const ar = [1,2,3,4,5,6,7,8,9];
+
+function sum(a, b, ...rest){
+    return a + b + rest.reduce((a , i) => a + i ,0)
+};
+
+console.log(sum(...ar))
